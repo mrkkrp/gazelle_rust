@@ -1,7 +1,9 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//proto:def.bzl", "go_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@rules_rust//proto/protobuf:proto.bzl", "rust_proto_library")
-load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
+# load("@rules_rust//proto/protobuf:proto.bzl", "rust_proto_library")
+# load("@rules_rust_prost//:defs.bzl", "rust_prost_library")
+load("@rules_rust_protobuf//:defs.bzl", "rust_proto_library")
 
 proto_library(
     name = "messages_proto",
@@ -13,6 +15,7 @@ rust_proto_library(
     name = "messages_rust_proto",
     visibility = ["//visibility:public"],
     deps = [":messages_proto"],
+    # rust_deps = ["@crates//:protobuf"],
 )
 
 go_proto_library(
