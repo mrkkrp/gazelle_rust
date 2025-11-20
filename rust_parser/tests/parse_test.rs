@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
+use runfiles::Runfiles;
 
 struct TestCase {
     filename: &'static str,
@@ -96,9 +97,8 @@ fn assert_eq_vecs(actual: &[String], expected: &[String], msg: &str) {
 #[test]
 fn parse_test() -> Result<(), Box<dyn Error>> {
     let dir = if cfg!(feature = "bazel") {
-        let mut d = runfiles::find_runfiles_dir()?;
-        d.push("gazelle_rust/rust_parser/test_data");
-        d
+        let r = Runfiles::create().unwrap();
+        r.rlocation("_main/rust_parser/test_data/").unwrap()
     } else {
         let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         d.push("test_data");
