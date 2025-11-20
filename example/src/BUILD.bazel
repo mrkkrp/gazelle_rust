@@ -1,13 +1,11 @@
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
 
 rust_library(
-    name = "helper",
-    srcs = ["helper.rs"],
-)
-
-rust_library(
     name = "lib",
-    srcs = ["lib.rs"],
+    srcs = [
+        "helper.rs",
+        "lib.rs",
+    ],
 )
 
 rust_binary(

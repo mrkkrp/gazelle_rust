@@ -20,6 +20,7 @@
             pkgs.bazelisk
             pkgs.bazel-buildtools
             pkgs.zlib
+            pkgs.cargo
           ];
         extraBuildCommands = ''
           ln -s /usr/bin/bazelisk $out/usr/bin/bazel
