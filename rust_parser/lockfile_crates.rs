@@ -87,25 +87,30 @@ pub fn get_cargo_lockfile_crates(lockfile_path: PathBuf) -> Result<Vec<Package>,
     let mut deps = Vec::new();
 
     for pkg in lockfile.packages {
-        if is_workspace_target(pkg.name.as_str()) {
-            deps.extend(pkg.dependencies);
-        } else {
-            is_proc_macro.insert(
-                pkg.name.as_str().to_string(),
-                pkg.dependencies
-                    .iter()
-                    .any(|dep| is_proc_macro_dep(dep.name.as_str())),
-            );
+
+        if !is_workspace_target(pkg.name.as_str()) {
+            deps.push(pkg.name.as_str().to_string());
         }
+        for dep in &pkg.dependencies {
+            deps.push(dep.name.as_str().to_string())
+        }
+
+        is_proc_macro.insert(
+            pkg.name.as_str().to_string(),
+            pkg.dependencies
+                .iter()
+                .any(|dep| is_proc_macro_dep(dep.name.as_str())),
+        );
+
     }
 
     let mut crates = Vec::new();
 
     for dep in deps {
         let mut package = Package::default();
-        package.name = dep.name.as_str().to_string();
+        package.proc_macro = is_proc_macro[&dep];
+        package.name = dep;
         package.crate_name = package.name.replace('-', "_");
-        package.proc_macro = is_proc_macro[dep.name.as_str()];
 
         crates.push(package);
     }
