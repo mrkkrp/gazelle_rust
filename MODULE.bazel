@@ -10,6 +10,13 @@ module(
 bazel_dep(name = "rules_go", version = "0.59.0")
 bazel_dep(name = "rules_proto", version = "7.1.0")
 bazel_dep(name = "gazelle", version = "0.47.0")
+single_version_override(
+    module_name = "gazelle",
+    patches = [
+        # this patch is needed for unused crate detection
+        "//patches:bazel-gazelle.patch",
+    ],
+)
 
 # Go dependencies
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
