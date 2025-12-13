@@ -89,6 +89,8 @@ fn handle_cargo_toml_request(
 ) -> Result<CargoTomlResponse, Box<dyn Error>> {
     let mut manifest = cargo_toml::Manifest::from_path(&request.file_path)?;
     manifest.complete_from_path(&PathBuf::from(&request.file_path))?;
+    let feature_resolver = cargo_toml::features::Resolver::new();
+    let features = feature_resolver.parse(&manifest.clone()).features.into_values().map(|feature| feature.key.to_string()).collect();
 
     let mut response = CargoTomlResponse::default();
     response.set_success(true);
@@ -111,6 +113,7 @@ fn handle_cargo_toml_request(
     response.set_examples(RepeatedField::from_vec(
         manifest.example.into_iter().map(build_crate_info).collect(),
     ));
+    response.set_features(RepeatedField::from_vec(features));
 
     Ok(response)
 }
