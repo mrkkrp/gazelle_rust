@@ -61,6 +61,10 @@ var (
 	// and rust_proc_macro targets. rust_binary and cargo_build_script targets
 	// continue to list files explicitly.
 	srcsGlobDirective string = "rust_srcs_glob"
+
+	// Ignore a specific import when resolving dependencies.
+	// usage: # gazelle:rust_ignore_import <import name>
+	ignoreImportDirective string = "rust_ignore_import"
 )
 
 type rustConfig struct {
@@ -73,6 +77,7 @@ type rustConfig struct {
 	DefaultFeatures    bool
 	DefaultEdition     string
 	SrcsGlob           bool
+	IgnoredImports     map[string]bool
 }
 
 func (cfg *rustConfig) Clone() *rustConfig {
@@ -87,6 +92,10 @@ func (cfg *rustConfig) Clone() *rustConfig {
 	copy.KindMapInverse = make(map[string]string)
 	for k, v := range cfg.KindMapInverse {
 		copy.KindMapInverse[k] = v
+	}
+	copy.IgnoredImports = make(map[string]bool)
+	for k, v := range cfg.IgnoredImports {
+		copy.IgnoredImports[k] = v
 	}
 	return &copy
 }
@@ -194,7 +203,7 @@ func (*rustLang) KnownDirectives() []string {
 	return []string{modeDirective, lockfileDirective, cargoLockfileDirective,
 		cratesPrefixDirective, procMacroOverrideDirective, allowUnusedCrateDirective,
 		rustFeatureDirective, defaultFeaturesDirective, defaultEditionDirective,
-		srcsGlobDirective}
+		srcsGlobDirective, ignoreImportDirective}
 }
 
 func (l *rustLang) GetConfig(c *config.Config) *rustConfig {
@@ -230,6 +239,7 @@ func (l *rustLang) Configure(c *config.Config, rel string, from *rule.File) {
 			DefaultFeatures:    true, // enable default features by default
 			DefaultEdition:     "",
 			SrcsGlob:           false,
+			IgnoredImports:     make(map[string]bool),
 		}
 	} else {
 		// NOTE(will): important to clone so that we don't leak state across directories
@@ -296,6 +306,7 @@ func (l *rustLang) Configure(c *config.Config, rel string, from *rule.File) {
 						directive.Key, directive.Key)
 				}
 				cfg.SrcsGlob = value
+			} else if directive.Key == ignoreImportDirective {
 			}
 		}
 	}
